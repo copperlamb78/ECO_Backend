@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 from typing import Optional, List
 
-class PontoColetaCreat(BaseModel):
+class PontoColetaCreate(BaseModel):
     nome: str
     endereco: str
     cidade: str
