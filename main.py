@@ -38,7 +38,7 @@ def addres():
     return {"message": "página de localização"}
 
 def haversine(lat1, lon1, lat2, lon2):
-    R = 6371000 # Raio da Terra em metros
+    R = 6371000
     dLat = radians(lat2 - lat1)
     dLon = radians(lon2 - lon1)
     a = sin(dLat/2)**2 + cos(radians(lat1))*cos(radians(lat2))*sin(dLon/2)**2
@@ -56,7 +56,6 @@ def pontos(latitude: float = None, longitude: float = None, distancia_metros: fl
             loc = p.get("localizacao", "")
             p_lat, p_lon = None, None
             
-            # Extrai a longitude e latitude do formato WKT: POINT(lon lat)
             if isinstance(loc, str):
                 match = re.search(r"POINT\(([-\d\.]+)\s+([-\d\.]+)\)", loc)
                 if match:
@@ -69,11 +68,9 @@ def pontos(latitude: float = None, longitude: float = None, distancia_metros: fl
                 dist = haversine(latitude, longitude, p_lat, p_lon)
                 p["distancia_metros"] = dist
                 
-                # Retorna apenas se estiver dentro do raio escolhido (5km)
                 if dist <= distancia_metros:
                     pontos_filtrados.append(p)
         
-        # Ordena dos mais próximos para os mais distantes
         pontos_filtrados.sort(key=lambda x: x["distancia_metros"])
         return {"pontos": pontos_filtrados}
 
