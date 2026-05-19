@@ -1,4 +1,4 @@
-from fastapi import FastAPI, APIRouter
+﻿from fastapi import FastAPI, APIRouter
 from fastapi.middleware.cors import CORSMiddleware
 from supabase import create_client
 import os
@@ -26,7 +26,7 @@ DATABASE_KEY = os.getenv("DATABASE_KEY")
 
 
 
-supabase = create_client(URL_API, DATABASE_KEY )
+supabase = create_client(URL_API, DATABASE_KEY)
 
 
 @router.get("/")
@@ -47,20 +47,23 @@ def haversine(lat1, lon1, lat2, lon2):
 
 @router.get("/pontos")
 def pontos(latitude: float = None, longitude: float = None, distancia_metros: float = 5000):
-    response = supabase.table('pontos_de_coleta').select("*").execute()
+    # Isso foi alterado por conta do formato de armazenamento dos dados, que é um texto do tipo "POINT(lon lat)"
+    # Antes estava em formato geography, dai criei outra tabela com os dados formatados para texto.
+    response = supabase.table('pontos_formatados').select("*").execute()
     pontos_db = response.data
-    
+
     if latitude is not None and longitude is not None:
         pontos_filtrados = []
         for p in pontos_db:
-            loc = p.get("localizacao", "")
+            loc = p.get("localizacao_texto", "")
             p_lat, p_lon = None, None
             
             if isinstance(loc, str):
-                match = re.search(r"POINT\(([-\d\.]+)\s+([-\d\.]+)\)", loc)
+                # Extrai latitude e longitude do formato "POINT(lon lat)"
+                match = re.search(r"POINT\s*\(([-\d\.]+)\s+([-\d\.]+)\)", loc)
                 if match:
                     p_lon = float(match.group(1))
-                    p_lat = float(match.group(2))
+                    p_lat = float(match.group(2))            
             
             if p_lat is not None and p_lon is not None:
                 p["latitude"] = p_lat
